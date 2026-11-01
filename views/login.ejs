@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Roboto', sans-serif; }</style>
+</head>
+<body class="bg-[#f7f8f9] text-[#002f34] min-h-screen flex flex-col justify-between">
+
+    <!-- Simple Top Bar -->
+    <header class="bg-white border-b border-gray-200 py-3.5 px-6">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="/" class="flex items-center gap-1.5">
+                <span class="text-3xl font-black tracking-tighter text-[#002f34]">OLX</span>
+                <span class="text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-teal-100 text-[#002f34]">Stalin</span>
+            </a>
+            <a href="/" class="text-xs font-bold text-gray-500 hover:text-[#002f34]">&larr; Kembali ke Beranda</a>
+        </div>
+    </header>
+
+    <!-- Login Box -->
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 max-w-md w-full shadow-md">
+            
+            <div class="text-center mb-6">
+                <span class="text-4xl block mb-2">🔐</span>
+                <h1 class="text-xl font-black text-[#002f34]">Masuk ke Stalin Store</h1>
+                <p class="text-xs text-gray-500 mt-1">Kelola iklan hardware dan profil jual beli Anda</p>
+            </div>
+
+            <!-- Pesan Error -->
+            <% if (error) { %>
+                <div class="mb-4 p-3 rounded bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <!-- Demo Account Helper Card -->
+            <div class="mb-5 p-3 rounded-lg bg-teal-50 border border-teal-200 text-xs text-teal-900">
+                <div class="font-bold flex items-center justify-between">
+                    <span>💡 Akun Demo Pengujian:</span>
+                    <button type="button" onclick="fillDemoAccount()" class="text-[11px] bg-teal-700 text-white px-2 py-0.5 rounded hover:bg-teal-800 transition">
+                        Klik Isi Otomatis
+                    </button>
+                </div>
+                <p class="text-[11px] text-teal-800 mt-1 font-mono">
+                    Email: user@stalinstore.com | Pass: password123
+                </p>
+            </div>
+
+            <!-- Form Login -->
+            <form action="/login" method="POST" class="space-y-4">
+                <input type="hidden" name="redirectUrl" value="<%= redirectUrl %>">
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Email</label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        id="email-input"
+                        required 
+                        placeholder="nama@email.com" 
+                        class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded focus:border-[#002f34] focus:outline-none transition"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        id="pass-input"
+                        required 
+                        placeholder="••••••••" 
+                        class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded focus:border-[#002f34] focus:outline-none transition"
+                    >
+                </div>
+
+                <button type="submit" class="w-full bg-[#002f34] hover:bg-teal-900 text-white font-bold py-2.5 rounded text-sm transition shadow">
+                    Masuk Sekarang
+                </button>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-gray-100 text-center text-xs text-gray-600">
+                Belum punya akun? 
+                <a href="/register" class="font-bold text-teal-700 hover:underline">
+                    Daftar Akun Baru
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#ebedf0] py-4 text-center text-xs text-gray-500">
+        &copy; <%= new Date().getFullYear() %> Stalin Store &bull; Praktikum Pemrograman Aplikasi Web
+    </footer>
+
+    <script>
+        function fillDemoAccount() {
+            document.getElementById('email-input').value = 'user@stalinstore.com';
+            document.getElementById('pass-input').value = 'password123';
+        }
+    </script>
+
+</body>
+</html>

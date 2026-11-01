@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Roboto', sans-serif; }</style>
+</head>
+<body class="bg-[#f7f8f9] text-[#002f34] min-h-screen flex flex-col justify-between">
+
+    <!-- Top Navbar -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-1.5">
+                <span class="text-3xl font-black tracking-tighter text-[#002f34]">OLX</span>
+                <span class="text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-teal-100 text-[#002f34]">Stalin</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="/" class="text-xs font-bold text-gray-600 hover:text-[#002f34]">&larr; Beranda Katalog</a>
+                <a href="/jual" class="bg-[#002f34] text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-teal-900 transition">
+                    + JUAL
+                </a>
+                <a href="/logout" class="text-xs font-bold text-rose-600 hover:underline">
+                    Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Profile Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full flex-grow">
+        
+        <!-- Notifikasi Update Profil -->
+        <% if (message) { %>
+            <div class="mb-6 p-3 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">
+                <span><%= message %></span>
+                <span class="cursor-pointer font-bold" onclick="this.parentElement.remove()">✕</span>
+            </div>
+        <% } %>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Kolom Kiri: Kartu Profil & Edit Profil (1 Kolom) -->
+            <div class="space-y-6">
+                <!-- Info Akun Card -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm text-center">
+                    <img src="<%= profileUser.avatar %>" alt="<%= profileUser.nama %>" class="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-teal-600 object-cover shadow">
+                    
+                    <h2 class="text-lg font-black text-[#002f34]"><%= profileUser.nama %></h2>
+                    <p class="text-xs text-gray-500 mt-0.5"><%= profileUser.email %></p>
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-100 text-left text-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">WhatsApp/HP:</span>
+                            <span class="font-bold text-gray-700"><%= profileUser.no_hp %></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Lokasi:</span>
+                            <span class="font-bold text-gray-700"><%= profileUser.lokasi %></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Bergabung:</span>
+                            <span class="font-bold text-gray-700"><%= profileUser.bergabung %></span>
+                        </div>
+                    </div>
+
+                    <% if (profileUser.bio) { %>
+                        <div class="mt-4 p-3 bg-gray-50 rounded text-left text-[11px] text-gray-600">
+                            <%= profileUser.bio %>
+                        </div>
+                    <% } %>
+
+                    <div class="mt-5 pt-4 border-t border-gray-100">
+                        <a href="/logout" class="block w-full py-2 border border-rose-300 text-rose-600 hover:bg-rose-50 rounded text-xs font-bold transition">
+                            Keluar dari Akun (Logout)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Form Edit Data Profil -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <h3 class="text-sm font-bold text-[#002f34] border-b pb-2 mb-4">Edit Informasi Akun</h3>
+                    <form action="/profile" method="POST" class="space-y-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Nama Lengkap</label>
+                            <input type="text" name="nama" value="<%= profileUser.nama %>" required class="w-full px-3 py-1.5 text-xs border rounded focus:border-[#002f34] focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Nomor WhatsApp/HP</label>
+                            <input type="text" name="no_hp" value="<%= profileUser.no_hp %>" class="w-full px-3 py-1.5 text-xs border rounded focus:border-[#002f34] focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Kota / Lokasi</label>
+                            <select name="lokasi" class="w-full px-3 py-1.5 text-xs border rounded focus:border-[#002f34] focus:outline-none">
+                                <% locations.filter(l => l !== 'Semua Lokasi').forEach(loc => { %>
+                                    <option value="<%= loc %>" <%= profileUser.lokasi === loc ? 'selected' : '' %>><%= loc %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Bio Singkat</label>
+                            <textarea name="bio" rows="2" class="w-full px-3 py-1.5 text-xs border rounded focus:border-[#002f34] focus:outline-none"><%= profileUser.bio || '' %></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-[#002f34] hover:bg-teal-900 text-white font-bold py-2 rounded text-xs transition">
+                            Simpan Perubahan
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Daftar Iklan Saya (2 Kolom) -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between border-b pb-4 mb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-[#002f34]">Iklan Hardware Saya</h2>
+                            <p class="text-xs text-gray-500">Kelola ketersediaan iklan produk yang Anda terbitkan</p>
+                        </div>
+                        <a href="/jual" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold px-3 py-2 rounded transition">
+                            + Pasang Iklan Baru
+                        </a>
+                    </div>
+
+                    <% if (userAds.length === 0) { %>
+                        <div class="text-center py-12">
+                            <span class="text-4xl block mb-2">📦</span>
+                            <h4 class="text-sm font-bold text-gray-700">Belum Ada Iklan yang Dipasang</h4>
+                            <p class="text-xs text-gray-400 mt-1 mb-4">Anda belum memasang iklan hardware komputer di Stalin Store.</p>
+                            <a href="/jual" class="inline-block bg-[#002f34] text-white text-xs font-bold px-4 py-2 rounded hover:bg-teal-900 transition">
+                                Pasang Iklan Sekarang
+                            </a>
+                        </div>
+                    <% } else { %>
+                        <div class="space-y-4">
+                            <% userAds.forEach(ad => { %>
+                                <div class="border border-gray-200 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-gray-300 transition">
+                                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                                        <img src="<%= ad.gambar %>" alt="<%= ad.nama %>" class="w-16 h-16 rounded object-cover flex-shrink-0 bg-gray-100">
+                                        <div>
+                                            <a href="/produk/<%= ad.id %>" class="text-sm font-bold text-gray-800 hover:text-teal-700 line-clamp-1">
+                                                <%= ad.nama %>
+                                            </a>
+                                            <p class="text-xs font-black text-[#002f34] mt-0.5">
+                                                <%= formatRupiah(ad.harga) %>
+                                            </p>
+                                            <div class="flex items-center space-x-2 text-[10px] text-gray-400 mt-1">
+                                                <span class="px-1.5 py-0.5 rounded <%= ad.kondisi === 'Baru' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700' %>">
+                                                    <%= ad.kondisi %>
+                                                </span>
+                                                <span>&bull; <%= ad.kategori %></span>
+                                                <span>&bull; <%= ad.lokasi %></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status & Aksi Tombol -->
+                                    <div class="flex items-center space-x-2 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-0 border-gray-100">
+                                        <span class="text-[11px] font-bold px-2 py-1 rounded <%= ad.stok ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' %>">
+                                            <%= ad.stok ? 'Tersedia' : 'Terjual' %>
+                                        </span>
+                                        
+                                        <form action="/produk/<%= ad.id %>/toggle-stok" method="POST" class="inline">
+                                            <button type="submit" class="text-xs font-bold px-3 py-1.5 rounded border <%= ad.stok ? 'border-amber-400 text-amber-700 hover:bg-amber-50' : 'border-emerald-400 text-emerald-700 hover:bg-emerald-50' %> transition">
+                                                <%= ad.stok ? 'Tandai Terjual' : 'Tandai Tersedia' %>
+                                            </button>
+                                        </form>
+
+                                        <a href="/produk/<%= ad.id %>" class="text-xs font-bold px-3 py-1.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 transition">
+                                            Lihat
+                                        </a>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#002f34] text-white py-4 px-6 text-center text-xs">
+        &copy; <%= new Date().getFullYear() %> Stalin Store &bull; Praktikum Pemrograman Aplikasi Web (PPAW Week 7).
+    </footer>
+
+</body>
+</html>
