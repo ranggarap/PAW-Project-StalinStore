@@ -1,14 +1,28 @@
 {
-  "name": "stalin-store-week7",
+  "name": "stalin-store-crud",
   "version": "1.0.0",
-  "description": "Tugas Week 7 PPAW - Integrasi Frontend EJS (OLX Style), REST API, dan Middleware Logger",
+  "description": "Tugas PPAW - Integrasi Database PostgreSQL dan Implementasi CRUD Frontend & Backend (MVC EJS)",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "node --watch app.js"
+    "dev": "node --watch app.js",
+    "test": "node tests/crud.test.js"
   },
   "dependencies": {
     "ejs": "^7.0.2",
-    "express": "^5.3.0"
-  }
+    "express": "^5.3.0",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "express",
+    "ejs",
+    "postgresql",
+    "crud",
+    "mvc",
+    "ppaw"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
 }
