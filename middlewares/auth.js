@@ -83,5 +83,6 @@ const requireAuth = (req, res, next) => {
 
 module.exports = {
     sessionMiddleware,
-    requireAuth
+    requireAuth,
+    sessionStore
 };
