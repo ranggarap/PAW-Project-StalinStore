@@ -15,12 +15,14 @@
 </head>
 <body class="bg-[#f7f8f9] text-[#002f34] min-h-screen flex flex-col justify-between antialiased">
 
-    <!-- Top Info Bar (REST API & Server Status for Week 7) -->
+    <!-- Top Info Bar (Database Status & REST API Info) -->
     <div class="bg-[#002f34] text-white text-xs py-1.5 px-4 border-b border-teal-900">
         <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center space-x-2">
-                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="font-medium tracking-wide">PPAW Week 7: Integrasi Express MVC & Middleware Logger</span>
+                <span class="inline-block w-2.5 h-2.5 rounded-full <%= dbConnected ? 'bg-emerald-400' : 'bg-amber-400' %> animate-pulse"></span>
+                <span class="font-medium tracking-wide">
+                    PPAW: Integrasi Database <%= dbConnected ? 'PostgreSQL (Aktif)' : 'Data Store (Aktif)' %> &amp; CRUD Berkelanjutan
+                </span>
             </div>
             <div class="flex items-center space-x-4 text-[11px]">
                 <a href="/api/status" target="_blank" class="hover:text-teal-300 font-mono underline transition">GET /api/status</a>
@@ -44,7 +46,7 @@
                 </span>
             </a>
 
-            <!-- Form Pencarian & Lokasi Terintegrasi -->
+            <!-- Form Pencarian & Lokasi Terintegrasi Database -->
             <form action="/" method="GET" class="flex-grow flex items-center gap-2 sm:gap-3">
                 <!-- Dropdown Lokasi Interaktif -->
                 <div class="hidden lg:flex items-center border-2 border-[#002f34] rounded h-11 px-2.5 bg-white w-56 hover:border-teal-600 transition">
@@ -65,7 +67,7 @@
                         type="text" 
                         name="q" 
                         value="<%= q || '' %>" 
-                        placeholder="Temukan Laptop Gaming, VGA Card, RAM, Processor..." 
+                        placeholder="Cari Laptop Gaming, VGA Card, RAM, Processor di Database..." 
                         class="w-full px-3 text-xs sm:text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
                     >
                     <% if (selectedKategori && selectedKategori !== 'Semua Kategori') { %>
@@ -101,8 +103,8 @@
                     </a>
                 <% } %>
 
-                <!-- Tombol Pill "+ JUAL" Khas OLX -->
-                <a href="/jual" class="relative inline-flex items-center justify-center p-0.5 overflow-hidden rounded-full group bg-gradient-to-r from-teal-400 via-amber-300 to-blue-500 hover:from-teal-500 hover:to-blue-600 shadow-md transform active:scale-95 transition">
+                <!-- Tombol Pill "+ JUAL" (CRUD CREATE) -->
+                <a href="/jual" class="relative inline-flex items-center justify-center p-0.5 overflow-hidden rounded-full group bg-gradient-to-r from-teal-400 via-amber-300 to-blue-500 hover:from-teal-500 hover:to-blue-600 shadow-md transform active:scale-95 transition" title="Pasang Iklan Baru (CRUD Create)">
                     <span class="px-4 sm:px-6 py-1.5 transition-all ease-in duration-75 bg-white rounded-full text-[#002f34] flex items-center gap-1.5 font-black uppercase tracking-wider text-xs sm:text-sm">
                         <span class="text-base sm:text-lg leading-none font-black text-teal-600">+</span> JUAL
                     </span>
@@ -149,11 +151,11 @@
                     <% } else if (selectedKategori && selectedKategori !== 'Semua Kategori') { %>
                         Kategori <%= selectedKategori %>
                     <% } else { %>
-                        Rekomendasi Baru untuk Anda
+                        Rekomendasi Hardware dari Database
                     <% } %>
                 </h1>
                 <p class="text-xs text-gray-500 mt-0.5">
-                    Hardware komputer pilihan terverifikasi di Stalin Store &bull; Lokasi: <%= selectedLokasi || 'Semua Lokasi' %>
+                    Hardware komputer pilihan &bull; Sumber Data: <span class="font-bold text-teal-800"><%= dbConnected ? 'PostgreSQL Database' : 'Database Data Store' %></span> &bull; Lokasi: <%= selectedLokasi || 'Semua Lokasi' %>
                 </p>
             </div>
             
@@ -164,7 +166,7 @@
                     </a>
                 <% } %>
                 <span class="text-gray-500 font-medium">
-                    Menampilkan <span class="text-[#002f34] font-bold"><%= produk.length %></span> iklan
+                    Menampilkan <span class="text-[#002f34] font-bold"><%= produk.length %></span> iklan di database
                 </span>
             </div>
         </div>
@@ -173,7 +175,7 @@
         <% if (produk.length === 0) { %>
             <div class="bg-white border border-gray-200 rounded-lg p-12 text-center my-6">
                 <span class="text-5xl block mb-3">🔍</span>
-                <h3 class="text-base font-bold text-gray-800">Tidak ada produk hardware yang cocok</h3>
+                <h3 class="text-base font-bold text-gray-800">Tidak ada produk hardware yang cocok di database</h3>
                 <p class="text-xs text-gray-500 mt-1 max-w-md mx-auto">
                     Coba gunakan kata kunci lain atau pilih kategori dan lokasi yang berbeda untuk menemukan produk.
                 </p>
@@ -186,10 +188,8 @@
                 <% produk.forEach(item => { %>
                     <div class="bg-white border border-gray-200 rounded-md overflow-hidden hover:shadow-lg transition-all duration-200 flex flex-col justify-between relative group">
                         
-                        <!-- Area Gambar & Wishlist -->
+                        <!-- Area Gambar & Link Detail -->
                         <div class="relative w-full h-40 sm:h-48 bg-gray-100 overflow-hidden">
-                            
-                            <!-- Link ke Detail Produk -->
                             <a href="/produk/<%= item.id %>" class="block w-full h-full">
                                 <img 
                                     src="<%= item.gambar %>" 
@@ -199,12 +199,10 @@
                                 >
                             </a>
 
-                            <!-- Ikon Wishlist / Favorit Interaktif (Pojok Kanan Atas) -->
-                            <button onclick="toggleWishlist(this, <%= item.id %>)" class="wishlist-btn absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow hover:bg-white flex items-center justify-center text-gray-500 transition z-10" title="Simpan ke Favorit">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                            </button>
+                            <!-- Shortcut Tombol Edit di Card (CRUD Update) -->
+                            <a href="/produk/<%= item.id %>/edit" class="absolute top-2 left-2 px-2 py-1 bg-white/90 hover:bg-white text-[10px] font-bold text-amber-700 rounded shadow backdrop-blur-sm opacity-90 hover:opacity-100 transition z-10" title="Edit Produk">
+                                ✏️ Edit
+                            </a>
 
                             <!-- Overlay "TERJUAL" jika Stok False -->
                             <% if (!item.stok) { %>
@@ -258,35 +256,73 @@
             </div>
         <% } %>
 
-        <!-- Tombol Muat Lebih Banyak (Interaktif) -->
-        <div class="text-center mt-10">
-            <button id="btn-load-more" onclick="loadMoreProducts()" class="border-2 border-[#002f34] hover:bg-[#002f34] hover:text-white text-[#002f34] font-bold px-6 py-2.5 rounded text-sm transition">
-                Muat Lebih Banyak
-            </button>
-        </div>
-
-        <!-- Testing Console Card untuk Week 7 -->
-        <div class="mt-14 bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="text-lg">🛠️</span>
-                <h3 class="text-sm font-bold text-[#002f34] uppercase tracking-wide">
-                    Pengujian Endpoint REST API & Middleware Logger (Week 7)
-                </h3>
+        <!-- Testing Console Card Interaktif untuk Seluruh Endpoint CRUD -->
+        <div class="mt-14 bg-white border border-gray-200 rounded-lg p-5 sm:p-6 shadow-sm">
+            <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🛠️</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-[#002f34] uppercase tracking-wide">
+                            Konsol Pengujian REST API CRUD &amp; Middleware Logger
+                        </h3>
+                        <p class="text-xs text-gray-500">
+                            Seluruh endpoint di bawah ini terhubung ke database. Anda dapat menguji langsung melalui tombol di bawah atau menggunakan Postman / Thunder Client.
+                        </p>
+                    </div>
+                </div>
+                <span class="px-2.5 py-1 text-xs font-mono font-bold rounded <%= dbConnected ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300' %>">
+                    <%= dbConnected ? 'PostgreSQL Connected' : 'Database Ready' %>
+                </span>
             </div>
-            <p class="text-xs text-gray-600 mb-4">
-                Klik tombol di bawah ini untuk menguji endpoint JSON. Setiap kali endpoint diakses, 
-                <code class="bg-gray-100 px-1 py-0.5 text-teal-800 font-mono rounded">middlewares/logger.js</code> 
-                akan mencetak log otomatis ke terminal server Anda.
-            </p>
-            <div class="flex flex-wrap gap-3">
-                <a href="/api/status" target="_blank" class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-[#002f34] border border-gray-300 rounded text-xs font-mono font-medium transition">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    GET /api/status &rarr;
-                </a>
-                <a href="/api/produk" target="_blank" class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-[#002f34] border border-gray-300 rounded text-xs font-mono font-medium transition">
-                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                    GET /api/produk &rarr;
-                </a>
+
+            <!-- Daftar Tombol Uji Langsung Endpoint -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 my-4">
+                
+                <!-- 1. GET /api/status -->
+                <button onclick="runApiTest('GET', '/api/status')" class="flex items-center justify-between p-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-emerald-700">GET /api/status</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">Cek Status</span>
+                </button>
+
+                <!-- 2. GET /api/produk -->
+                <button onclick="runApiTest('GET', '/api/produk')" class="flex items-center justify-between p-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-blue-700">GET /api/produk</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded font-bold">Read All</span>
+                </button>
+
+                <!-- 3. GET /api/produk/1 -->
+                <button onclick="runApiTest('GET', '/api/produk/1')" class="flex items-center justify-between p-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-indigo-700">GET /api/produk/1</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-indigo-100 text-indigo-800 rounded font-bold">Read Detail</span>
+                </button>
+
+                <!-- 4. POST /api/produk -->
+                <button onclick="runApiPostTest()" class="flex items-center justify-between p-2.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-emerald-800">POST /api/produk</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded font-bold">+ Create Data</span>
+                </button>
+
+                <!-- 5. PUT /api/produk/1 -->
+                <button onclick="runApiPutTest()" class="flex items-center justify-between p-2.5 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-amber-800">PUT /api/produk/1</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-amber-200 text-amber-900 rounded font-bold">✏️ Update Data</span>
+                </button>
+
+                <!-- 6. DELETE /api/produk/:id -->
+                <button onclick="runApiDeleteTest()" class="flex items-center justify-between p-2.5 bg-rose-50 hover:bg-rose-100 border border-rose-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-rose-800">DELETE /api/produk/:id</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-rose-200 text-rose-900 rounded font-bold">🗑️ Delete Data</span>
+                </button>
+
+            </div>
+
+            <!-- Panel Live Response JSON -->
+            <div id="api-response-panel" class="hidden mt-4 p-4 bg-gray-900 rounded-lg text-emerald-400 font-mono text-xs overflow-x-auto shadow-inner">
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-gray-800 text-gray-400">
+                    <span id="api-response-title" class="font-bold text-white">Live API Response</span>
+                    <button onclick="document.getElementById('api-response-panel').classList.add('hidden')" class="hover:text-white">✕ Tutup</button>
+                </div>
+                <pre id="api-response-body" class="whitespace-pre-wrap max-h-64 overflow-y-auto"></pre>
             </div>
         </div>
 
@@ -298,90 +334,112 @@
             <div>
                 <h4 class="font-bold uppercase tracking-wider mb-2.5 text-gray-800">Kategori Populer</h4>
                 <ul class="space-y-1.5 text-gray-600">
-                    <li><a href="/?kategori=Laptop" class="hover:underline">Laptop Gaming Bekas</a></li>
-                    <li><a href="/?q=RTX" class="hover:underline">VGA RTX Series</a></li>
-                    <li><a href="/?q=RAM" class="hover:underline">RAM DDR4 / DDR5</a></li>
-                    <li><a href="/?kategori=Komponen+PC" class="hover:underline">Processor Intel & Ryzen</a></li>
+                    <li><a href="/?kategori=Laptop" class="hover:underline">Laptop Gaming</a></li>
+                    <li><a href="/?kategori=Komponen PC" class="hover:underline">VGA Card &amp; GPU</a></li>
+                    <li><a href="/?kategori=Komputer" class="hover:underline">PC Gaming Fullset</a></li>
+                    <li><a href="/?kategori=Monitor" class="hover:underline">Monitor Curved</a></li>
                 </ul>
             </div>
             <div>
-                <h4 class="font-bold uppercase tracking-wider mb-2.5 text-gray-800">Pencarian Populer</h4>
+                <h4 class="font-bold uppercase tracking-wider mb-2.5 text-gray-800">Lokasi Penjualan</h4>
                 <ul class="space-y-1.5 text-gray-600">
-                    <li><a href="/?q=ROG&lokasi=Sleman" class="hover:underline">Laptop ROG Sleman</a></li>
-                    <li><a href="/?q=4070" class="hover:underline">VGA 4070 Ti Jogja</a></li>
-                    <li><a href="/?q=Keychron" class="hover:underline">Keychron Mechanical</a></li>
-                    <li><a href="/?kategori=Komputer" class="hover:underline">PC Gaming Rakitan</a></li>
+                    <li><a href="/?lokasi=Sleman" class="hover:underline">Sleman, D.I. Yogyakarta</a></li>
+                    <li><a href="/?lokasi=Kota Yogyakarta" class="hover:underline">Kota Yogyakarta</a></li>
+                    <li><a href="/?lokasi=Depok" class="hover:underline">Depok, Sleman</a></li>
+                    <li><a href="/?lokasi=Bantul" class="hover:underline">Bantul</a></li>
                 </ul>
             </div>
             <div>
                 <h4 class="font-bold uppercase tracking-wider mb-2.5 text-gray-800">Tentang Stalin Store</h4>
-                <ul class="space-y-1.5 text-gray-600">
-                    <li><a href="/profile" class="hover:underline">Profil Pengguna</a></li>
-                    <li><a href="/jual" class="hover:underline">Pasang Iklan Hardware</a></li>
-                    <li><a href="/api/status" class="hover:underline">Status API Server</a></li>
-                    <li><a href="/api/produk" class="hover:underline">Koleksi JSON Produk</a></li>
-                </ul>
+                <p class="text-gray-500 leading-relaxed">
+                    Marketplace jual beli hardware dan komputer terpercaya. Menggunakan arsitektur Express MVC, EJS, PostgreSQL Database, serta REST API CRUD.
+                </p>
             </div>
             <div>
-                <h4 class="font-bold uppercase tracking-wider mb-2.5 text-gray-800">PPAW Week 7</h4>
-                <p class="text-gray-600 leading-relaxed">
-                    Proyek Web Dinamis Berkelanjutan menggunakan Express.js, Arsitektur MVC, EJS, dan Tailwind CSS.
-                </p>
-                <p class="mt-2 text-gray-500 font-mono text-[11px]">
-                    Server Port: 5173
-                </p>
+                <h4 class="font-bold uppercase tracking-wider mb-2.5 text-gray-800">Teknologi Proyek</h4>
+                <div class="space-y-1 text-gray-500 font-mono text-[11px]">
+                    <p>&bull; Node.js &amp; Express.js</p>
+                    <p>&bull; PostgreSQL Database (<code class="text-teal-700">pg</code>)</p>
+                    <p>&bull; View Engine: EJS</p>
+                    <p>&bull; Tailwind CSS CDN</p>
+                    <p>&bull; Middleware Logger</p>
+                </div>
             </div>
         </div>
-
-        <div class="bg-[#002f34] text-white py-3.5 px-6 text-center text-xs">
-            &copy; <%= new Date().getFullYear() %> Stalin Store &bull; Kloning UI OLX Indonesia untuk Praktikum Pemrograman Aplikasi Web (PPAW).
+        <div class="bg-[#002f34] text-white py-4 px-6 text-center text-xs">
+            &copy; <%= new Date().getFullYear() %> Stalin Store &bull; Praktikum Pemrograman Aplikasi Web (PPAW - Integrasi Database & CRUD).
         </div>
     </footer>
 
-    <!-- Script Interaktif untuk Wishlist & Load More -->
+    <!-- Script Pengujian API Interaktif di Halaman Browser -->
     <script>
-        // Fitur Favorit / Wishlist
-        function toggleWishlist(btn, id) {
-            let favorites = JSON.parse(localStorage.getItem('stalin_favs') || '[]');
-            const index = favorites.indexOf(id);
-            const svg = btn.querySelector('svg');
+        async function runApiTest(method, url, body = null) {
+            const panel = document.getElementById('api-response-panel');
+            const titleEl = document.getElementById('api-response-title');
+            const bodyEl = document.getElementById('api-response-body');
 
-            if (index > -1) {
-                favorites.splice(index, 1);
-                btn.classList.remove('text-red-600', 'bg-red-50');
-                btn.classList.add('text-gray-500');
-                svg.setAttribute('fill', 'none');
-            } else {
-                favorites.push(id);
-                btn.classList.add('text-red-600', 'bg-red-50');
-                btn.classList.remove('text-gray-500');
-                svg.setAttribute('fill', 'currentColor');
+            panel.classList.remove('hidden');
+            titleEl.textContent = `Mengirim: ${method} ${url}...`;
+            bodyEl.textContent = 'Memproses request ke backend...';
+
+            try {
+                const options = {
+                    method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+                const res = await fetch(url, options);
+                const data = await res.json();
+                titleEl.textContent = `${method} ${url} -> Status ${res.status} ${res.statusText}`;
+                bodyEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                titleEl.textContent = `Error ${method} ${url}`;
+                bodyEl.textContent = err.message;
             }
-            localStorage.setItem('stalin_favs', JSON.stringify(favorites));
         }
 
-        // Inisialisasi ikon favorit saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', () => {
-            const favorites = JSON.parse(localStorage.getItem('stalin_favs') || '[]');
-            document.querySelectorAll('.wishlist-btn').forEach(btn => {
-                const match = btn.getAttribute('onclick')?.match(/\d+/);
-                if (match && favorites.includes(Number(match[0]))) {
-                    btn.classList.add('text-red-600', 'bg-red-50');
-                    btn.classList.remove('text-gray-500');
-                    btn.querySelector('svg')?.setAttribute('fill', 'currentColor');
-                }
-            });
-        });
+        function runApiPostTest() {
+            const dummyPost = {
+                nama: "SSD Samsung 990 PRO 1TB PCIe 4.0 NVMe (Uji API)",
+                kategori: "Komponen PC",
+                harga: 1850000,
+                kondisi: "Baru",
+                lokasi: "Sleman, D.I. Yogyakarta",
+                gambar: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=600&q=80",
+                deskripsi: "Data ini ditambahkan secara otomatis melalui pengujian endpoint POST /api/produk ke database.",
+                stok: true
+            };
+            runApiTest('POST', '/api/produk', dummyPost);
+        }
 
-        // Fitur Muat Lebih Banyak (Interaktif)
-        function loadMoreProducts() {
-            const btn = document.getElementById('btn-load-more');
-            btn.innerHTML = `<span class="inline-block animate-spin mr-2">⟳</span> Memuat...`;
-            setTimeout(() => {
-                btn.innerHTML = 'Semua Iklan Sudah Ditampilkan';
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-            }, 600);
+        function runApiPutTest() {
+            const dummyPut = {
+                nama: "Laptop ASUS ROG Strix SCAR 15 (Updated via PUT)",
+                harga: 20999000,
+                kondisi: "Bekas",
+                deskripsi: "Harga dan deskripsi berhasil diperbarui melalui endpoint PUT /api/produk/1 pada database."
+            };
+            runApiTest('PUT', '/api/produk/1', dummyPut);
+        }
+
+        async function runApiDeleteTest() {
+            // Ambil ID produk terakhir terlebih dahulu
+            try {
+                const res = await fetch('/api/produk');
+                const json = await res.json();
+                if (json.data && json.data.length > 0) {
+                    const targetId = json.data[0].id;
+                    if (confirm(`Uji hapus produk ID #${targetId} ("${json.data[0].nama}") via DELETE /api/produk/${targetId}?`)) {
+                        runApiTest('DELETE', `/api/produk/${targetId}`);
+                    }
+                } else {
+                    alert('Tidak ada produk untuk dihapus.');
+                }
+            } catch (err) {
+                alert('Gagal mengambil daftar produk: ' + err.message);
+            }
         }
     </script>
 

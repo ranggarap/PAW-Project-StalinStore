@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Roboto', sans-serif; }</style>
+</head>
+<body class="bg-[#f7f8f9] text-[#002f34] min-h-screen flex flex-col justify-between">
+
+    <!-- Top Navbar -->
+    <header class="bg-white border-b border-gray-200 py-3.5 px-6 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="/" class="flex items-center gap-1.5">
+                <span class="text-3xl font-black tracking-tighter text-[#002f34]">OLX</span>
+                <span class="text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-teal-100 text-[#002f34]">Stalin</span>
+            </a>
+            <a href="/produk/<%= produk.id %>" class="text-xs font-bold text-gray-500 hover:text-[#002f34]">&larr; Batal & Kembali ke Detail Iklan</a>
+        </div>
+    </header>
+
+    <!-- Main Form Section -->
+    <main class="max-w-3xl mx-auto px-4 py-8 w-full flex-grow">
+        
+        <div class="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 shadow-sm">
+            
+            <div class="border-b border-gray-200 pb-4 mb-6 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-black uppercase tracking-wider text-amber-800 bg-amber-50 px-2.5 py-1 rounded border border-amber-200">
+                        ✏️ EDIT DATA IKLAN (CRUD UPDATE)
+                    </span>
+                    <h1 class="text-2xl font-black text-[#002f34] mt-2">
+                        Perbarui Iklan Hardware #<%= produk.id %>
+                    </h1>
+                    <p class="text-xs text-gray-500 mt-1">
+                        Perubahan akan langsung disimpan dan memperbarui record di database PostgreSQL.
+                    </p>
+                </div>
+                <span class="hidden sm:inline-block px-3 py-1 bg-gray-100 rounded text-xs font-mono font-bold text-gray-600">
+                    ID: <%= produk.id %>
+                </span>
+            </div>
+
+            <!-- Error Banner -->
+            <% if (error) { %>
+                <div class="mb-5 p-3 rounded bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <!-- Form Edit Produk -->
+            <form action="/produk/<%= produk.id %>/edit" method="POST" class="space-y-5">
+                
+                <!-- Judul Iklan -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
+                        Judul Iklan Hardware *
+                    </label>
+                    <input 
+                        type="text" 
+                        name="nama" 
+                        required 
+                        value="<%= produk.nama %>"
+                        class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded focus:border-[#002f34] focus:outline-none transition font-medium"
+                    >
+                    <span class="text-[11px] text-gray-400 mt-0.5 block">Sebutkan merk, tipe, dan spesifikasi kunci produk.</span>
+                </div>
+
+                <!-- Kategori & Kondisi (Grid 2 Kolom) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
+                            Kategori Hardware *
+                        </label>
+                        <select name="kategori" class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded focus:border-[#002f34] focus:outline-none transition">
+                            <% categories.filter(c => c !== 'Semua Kategori').forEach(kat => { %>
+                                <option value="<%= kat %>" <%= produk.kategori === kat ? 'selected' : '' %>><%= kat %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
+                            Kondisi Barang *
+                        </label>
+                        <div class="flex items-center space-x-6 mt-2">
+                            <label class="flex items-center space-x-2 text-sm cursor-pointer">
+                                <input type="radio" name="kondisi" value="Bekas" <%= produk.kondisi === 'Bekas' ? 'checked' : '' %> class="text-teal-600 focus:ring-teal-500">
+                                <span class="font-medium text-gray-800">Bekas (Second)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-sm cursor-pointer">
+                                <input type="radio" name="kondisi" value="Baru" <%= produk.kondisi === 'Baru' ? 'checked' : '' %> class="text-teal-600 focus:ring-teal-500">
+                                <span class="font-medium text-gray-800">Baru (BNIB)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Harga & Status Ketersediaan (Grid 2 Kolom) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
+                            Harga Jual (Rp) *
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold text-xs">
+                                Rp
+                            </span>
+                            <input 
+                                type="number" 
+                                name="harga" 
+                                required 
+                                min="1000"
+                                value="<%= produk.harga %>"
+                                class="w-full pl-10 pr-3 py-2 text-sm border-2 border-gray-300 rounded focus:border-[#002f34] focus:outline-none transition font-bold text-gray-800"
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
+                            Status Ketersediaan *
+                        </label>
+                        <select name="stok" class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded focus:border-[#002f34] focus:outline-none transition">
+                            <option value="true" <%= produk.stok ? 'selected' : '' %>>✅ Tersedia (Siap Dijual)</option>
+                            <option value="false" <%= !produk.stok ? 'selected' : '' %>>❌ Sudah Terjual (Habis)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Lokasi & URL Gambar -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
+                            Lokasi COD / Toko *
+                        </label>
+                        <select name="lokasi" class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded focus:border-[#002f34] focus:outline-none transition">
+                            <% locations.filter(l => l !== 'Semua Lokasi').forEach(loc => { %>
+                                <option value="<%= loc %>" <%= produk.lokasi === loc ? 'selected' : '' %>><%= loc %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
+                            URL Foto Hardware
+                        </label>
+                        <input 
+                            type="url" 
+                            name="gambar" 
+                            value="<%= produk.gambar %>"
+                            placeholder="https://..."
+                            class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded focus:border-[#002f34] focus:outline-none transition"
+                        >
+                    </div>
+                </div>
+
+                <!-- Deskripsi Lengkap -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
+                        Deskripsi Lengkap Hardware *
+                    </label>
+                    <textarea 
+                        name="deskripsi" 
+                        rows="4" 
+                        required 
+                        class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded focus:border-[#002f34] focus:outline-none transition"
+                    ><%= produk.deskripsi %></textarea>
+                </div>
+
+                <!-- Tombol Submit & Aksi -->
+                <div class="pt-5 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <a href="/produk/<%= produk.id %>" class="w-full sm:w-auto px-5 py-2.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-100 font-bold text-xs text-center transition">
+                        &larr; Batal
+                    </a>
+                    <button type="submit" class="w-full sm:w-auto bg-[#002f34] hover:bg-teal-900 text-white font-bold px-8 py-2.5 rounded text-sm transition shadow-md flex items-center justify-center gap-2">
+                        <span>💾</span> Simpan Perubahan ke Database
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#002f34] text-white py-4 px-6 text-center text-xs">
+        &copy; <%= new Date().getFullYear() %> Stalin Store &bull; Praktikum Pemrograman Aplikasi Web (PPAW - Integrasi Database & CRUD).
+    </footer>
+
+</body>
+</html>

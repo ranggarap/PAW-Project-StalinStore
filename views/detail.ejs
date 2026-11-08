@@ -14,11 +14,11 @@
     <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             <a href="/" class="flex items-center gap-1.5 group">
-                <span class="text-3xl font-black tracking-tighter text-[#002f34]">Stalin</span>
+                <span class="text-3xl font-black tracking-tighter text-[#002f34]">OLX</span>
                 <span class="text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-teal-100 text-[#002f34]">Stalin</span>
             </a>
             <div class="flex items-center space-x-4">
-                <a href="/" class="text-sm font-medium text-gray-600 hover:text-[#002f34]">&larr; Kembali ke Katalog</a>
+                <a href="/" class="text-xs sm:text-sm font-medium text-gray-600 hover:text-[#002f34]">&larr; Kembali ke Katalog</a>
                 <% if (user) { %>
                     <a href="/profile" class="text-xs font-bold text-[#002f34] bg-gray-100 px-3 py-1.5 rounded hover:bg-gray-200">
                         Profil (<%= user.nama.split(' ')[0] %>)
@@ -32,6 +32,16 @@
             </div>
         </div>
     </header>
+
+    <!-- Flash Notification (Jika Ada) -->
+    <% if (flash) { %>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 mt-4">
+            <div class="p-3 rounded-md text-xs font-medium <%= flash.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200' %> flex items-center justify-between">
+                <span><%= flash.message %></span>
+                <span class="cursor-pointer font-bold ml-2" onclick="this.parentElement.remove()">✕</span>
+            </div>
+        </div>
+    <% } %>
 
     <!-- Main Detail Section -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full flex-grow">
@@ -90,7 +100,7 @@
                 </div>
             </div>
 
-            <!-- Kolom Kanan: Harga, Penjual & Aksi (1 Kolom) -->
+            <!-- Kolom Kanan: Harga, Penjual & Panel Aksi CRUD (1 Kolom) -->
             <div class="space-y-6">
                 <!-- Card Harga & Judul -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
@@ -106,17 +116,33 @@
                         <span>🕒 <%= produk.waktu_post %></span>
                     </div>
 
-                    <!-- Tombol Aksi Penjual (Jika Pemilik) -->
-                    <% if (isOwner) { %>
-                        <div class="mt-5 pt-4 border-t border-gray-100 bg-teal-50 p-3 rounded">
-                            <span class="text-xs font-bold text-teal-800 block mb-2">⭐ Anda adalah pemilik iklan ini</span>
+                    <!-- Panel Operasi CRUD Frontend (Update & Delete) -->
+                    <div class="mt-5 pt-4 border-t border-gray-100 bg-slate-50 p-4 rounded-lg">
+                        <span class="text-xs font-bold text-[#002f34] block mb-2.5 uppercase tracking-wide">
+                            🛠️ Operasi CRUD Iklan Ini:
+                        </span>
+                        
+                        <div class="space-y-2">
+                            <!-- Tombol Edit (Update) -->
+                            <a href="/produk/<%= produk.id %>/edit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded text-xs flex items-center justify-center gap-1.5 transition shadow-sm">
+                                <span>✏️</span> Edit Data Iklan (Update)
+                            </a>
+
+                            <!-- Tombol Toggle Stok -->
                             <form action="/produk/<%= produk.id %>/toggle-stok" method="POST">
-                                <button type="submit" class="w-full text-xs font-bold py-2 rounded transition <%= produk.stok ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-emerald-600 hover:bg-emerald-700 text-white' %>">
+                                <button type="submit" class="w-full text-xs font-bold py-2 rounded transition <%= produk.stok ? 'bg-slate-700 hover:bg-slate-800 text-white' : 'bg-emerald-600 hover:bg-emerald-700 text-white' %>">
                                     <%= produk.stok ? 'Tandai Sebagai "TERJUAL"' : 'Tandai Sebagai "TERSEDIA LAGI"' %>
                                 </button>
                             </form>
+
+                            <!-- Tombol Hapus (Delete) dengan Konfirmasi Dialog -->
+                            <form action="/produk/<%= produk.id %>/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus iklan &quot;<%= produk.nama %>&quot; dari database? Tindakan ini tidak dapat dibatalkan.');">
+                                <button type="submit" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 font-bold py-2 px-3 rounded text-xs flex items-center justify-center gap-1.5 transition">
+                                    <span>🗑️</span> Hapus Iklan dari Database (Delete)
+                                </button>
+                            </form>
                         </div>
-                    <% } %>
+                    </div>
                 </div>
 
                 <!-- Card Penjual (Seller Box) -->
@@ -154,7 +180,7 @@
 
     <!-- Footer -->
     <footer class="bg-[#002f34] text-white py-4 px-6 text-center text-xs">
-        &copy; <%= new Date().getFullYear() %> Stalin Store &bull; Praktikum Pemrograman Aplikasi Web (PPAW Week 7).
+        &copy; <%= new Date().getFullYear() %> Stalin Store &bull; Praktikum Pemrograman Aplikasi Web (PPAW - Integrasi Database & CRUD).
     </footer>
 
 </body>
