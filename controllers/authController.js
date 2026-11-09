@@ -16,36 +16,45 @@ const getLoginPage = (req, res) => {
 };
 
 // Proses Login
-const postLogin = (req, res) => {
-    const { email, password, redirectUrl } = req.body;
-    const user = userModel.findByEmail(email);
+const postLogin = async (req, res) => {
+    try {
+        const { email, password, redirectUrl } = req.body;
+        const user = await userModel.findByEmail(email);
 
-    if (!user || user.password !== password) {
-        return res.render('login', {
+        if (!user || user.password !== password) {
+            return res.render('login', {
+                title: 'Login Akun - Stalin Store',
+                redirectUrl: redirectUrl || '/',
+                error: 'Email atau password yang Anda masukkan salah! (Coba: user@stalinstore.com / password123)'
+            });
+        }
+
+        // Set user di session
+        req.session.user = {
+            id: user.id,
+            nama: user.nama,
+            email: user.email,
+            no_hp: user.no_hp,
+            lokasi: user.lokasi,
+            bio: user.bio,
+            avatar: user.avatar,
+            bergabung: user.bergabung
+        };
+
+        req.session.flash = {
+            type: 'success',
+            message: `Selamat datang kembali, ${user.nama}!`
+        };
+
+        res.redirect(redirectUrl || '/profile');
+    } catch (err) {
+        console.error('Error postLogin:', err);
+        res.render('login', {
             title: 'Login Akun - Stalin Store',
-            redirectUrl: redirectUrl || '/',
-            error: 'Email atau password yang Anda masukkan salah! (Coba: user@stalinstore.com / password123)'
+            redirectUrl: '/',
+            error: 'Terjadi kesalahan sistem saat proses login.'
         });
     }
-
-    // Set user di session
-    req.session.user = {
-        id: user.id,
-        nama: user.nama,
-        email: user.email,
-        no_hp: user.no_hp,
-        lokasi: user.lokasi,
-        bio: user.bio,
-        avatar: user.avatar,
-        bergabung: user.bergabung
-    };
-
-    req.session.flash = {
-        type: 'success',
-        message: `Selamat datang kembali, ${user.nama}!`
-    };
-
-    res.redirect(redirectUrl || '/profile');
 };
 
 // Halaman Pendaftaran Akun
@@ -60,40 +69,48 @@ const getRegisterPage = (req, res) => {
 };
 
 // Proses Pendaftaran Akun
-const postRegister = (req, res) => {
-    const { nama, email, password, no_hp, lokasi } = req.body;
+const postRegister = async (req, res) => {
+    try {
+        const { nama, email, password, no_hp, lokasi } = req.body;
 
-    if (!nama || !email || !password) {
-        return res.render('register', {
+        if (!nama || !email || !password) {
+            return res.render('register', {
+                title: 'Daftar Akun Baru - Stalin Store',
+                error: 'Mohon isi seluruh field wajib (Nama, Email, dan Password)!'
+            });
+        }
+
+        const existingUser = await userModel.findByEmail(email);
+        if (existingUser) {
+            return res.render('register', {
+                title: 'Daftar Akun Baru - Stalin Store',
+                error: 'Email ini sudah terdaftar. Silakan gunakan email lain atau login langsung.'
+            });
+        }
+
+        const newUser = await userModel.createUser({
+            nama,
+            email,
+            password,
+            no_hp,
+            lokasi
+        });
+
+        // Otomatis login setelah daftar
+        req.session.user = newUser;
+        req.session.flash = {
+            type: 'success',
+            message: 'Akun berhasil dibuat! Selamat datang di Stalin Store.'
+        };
+
+        res.redirect('/profile');
+    } catch (err) {
+        console.error('Error postRegister:', err);
+        res.render('register', {
             title: 'Daftar Akun Baru - Stalin Store',
-            error: 'Mohon isi seluruh field wajib (Nama, Email, dan Password)!'
+            error: 'Terjadi kesalahan sistem saat proses registrasi.'
         });
     }
-
-    const existingUser = userModel.findByEmail(email);
-    if (existingUser) {
-        return res.render('register', {
-            title: 'Daftar Akun Baru - Stalin Store',
-            error: 'Email ini sudah terdaftar. Silakan gunakan email lain atau login langsung.'
-        });
-    }
-
-    const newUser = userModel.createUser({
-        nama,
-        email,
-        password,
-        no_hp,
-        lokasi
-    });
-
-    // Otomatis login setelah daftar
-    req.session.user = newUser;
-    req.session.flash = {
-        type: 'success',
-        message: 'Akun berhasil dibuat! Selamat datang di Stalin Store.'
-    };
-
-    res.redirect('/profile');
 };
 
 // Proses Logout
@@ -103,44 +120,54 @@ const getLogout = (req, res) => {
 };
 
 // Halaman Profil Akun Saya
-const getProfilePage = (req, res) => {
-    const currentUser = req.session.user;
-    const userAds = produkModel.getByUserId(currentUser.id);
+const getProfilePage = async (req, res) => {
+    try {
+        const currentUser = req.session.user;
+        const userAds = await produkModel.getByUserId(currentUser.id);
 
-    res.render('profile', {
-        title: `Profil Saya - ${currentUser.nama}`,
-        profileUser: currentUser,
-        userAds,
-        formatRupiah,
-        message: null
-    });
+        res.render('profile', {
+            title: `Profil Saya - ${currentUser.nama}`,
+            profileUser: currentUser,
+            userAds,
+            formatRupiah,
+            message: null
+        });
+    } catch (err) {
+        console.error('Error getProfilePage:', err);
+        res.redirect('/');
+    }
 };
 
 // Update Data Profil
-const postUpdateProfile = (req, res) => {
-    const currentUser = req.session.user;
-    const { nama, no_hp, lokasi, bio } = req.body;
+const postUpdateProfile = async (req, res) => {
+    try {
+        const currentUser = req.session.user;
+        const { nama, no_hp, lokasi, bio } = req.body;
 
-    const updated = userModel.updateProfile(currentUser.id, {
-        nama,
-        no_hp,
-        lokasi,
-        bio
-    });
+        const updated = await userModel.updateProfile(currentUser.id, {
+            nama,
+            no_hp,
+            lokasi,
+            bio
+        });
 
-    if (updated) {
-        req.session.user = updated;
+        if (updated) {
+            req.session.user = updated;
+        }
+
+        const userAds = await produkModel.getByUserId(currentUser.id);
+
+        res.render('profile', {
+            title: `Profil Saya - ${(updated || currentUser).nama}`,
+            profileUser: updated || currentUser,
+            userAds,
+            formatRupiah,
+            message: 'Profil berhasil diperbarui di database!'
+        });
+    } catch (err) {
+        console.error('Error postUpdateProfile:', err);
+        res.redirect('/profile');
     }
-
-    const userAds = produkModel.getByUserId(currentUser.id);
-
-    res.render('profile', {
-        title: `Profil Saya - ${updated.nama}`,
-        profileUser: updated,
-        userAds,
-        formatRupiah,
-        message: 'Profil berhasil diperbarui!'
-    });
 };
 
 module.exports = {
