@@ -18,4 +18,7 @@ Update
 <img width="1467" height="1079" alt="gambar" src="https://github.com/user-attachments/assets/6a743d43-c925-4d6d-8238-534d6ed48fad" />
 Delete
 <img width="1470" height="1079" alt="gambar" src="https://github.com/user-attachments/assets/9c9ee1ac-8a3c-474a-ad1c-84f447430927" />
-
+Test AI dalam konteks
+<img width="959" height="472" alt="image" src="https://github.com/user-attachments/assets/9a765042-77cd-4673-951a-59b75e166d14" />
+test AI di luar konteks judul
+<img width="959" height="502" alt="image" src="https://github.com/user-attachments/assets/ee7bc47e-f977-40b6-ab74-bb22644ad90b" />
