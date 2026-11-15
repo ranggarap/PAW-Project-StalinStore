@@ -25,6 +25,10 @@
                 </span>
             </div>
             <div class="flex items-center space-x-4 text-[11px]">
+                <a href="/chat" class="text-teal-300 hover:text-white font-bold flex items-center gap-1 transition">
+                    <span>🤖</span> AI Assistant (24/7)
+                </a>
+                <span>|</span>
                 <a href="/api/status" target="_blank" class="hover:text-teal-300 font-mono underline transition">GET /api/status</a>
                 <span>|</span>
                 <a href="/api/produk" target="_blank" class="hover:text-teal-300 font-mono underline transition">GET /api/produk</a>
@@ -81,8 +85,13 @@
                 </div>
             </form>
 
-            <!-- Navigasi Kanan (Akun & Tombol Jual) -->
-            <div class="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
+            <!-- Navigasi Kanan (Akun, AI Assistant, & Tombol Jual) -->
+            <div class="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+                <!-- Tombol Shortcut AI Assistant -->
+                <a href="/chat" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 text-xs font-bold transition shadow-sm" title="Tanya Stalin Store AI Assistant (24/7)">
+                    <span>🤖</span> <span class="hidden sm:inline">Tanya AI</span>
+                </a>
+
                 <% if (user) { %>
                     <!-- User Terautentikasi (Profil & Logout) -->
                     <div class="flex items-center space-x-3">
@@ -314,6 +323,18 @@
                     <span class="text-[10px] px-1.5 py-0.5 bg-rose-200 text-rose-900 rounded font-bold">🗑️ Delete Data</span>
                 </button>
 
+                <!-- 7. POST /api/chat (Google Gemini AI Assistant) -->
+                <button onclick="runApiChatTest()" class="flex items-center justify-between p-2.5 bg-teal-50 hover:bg-teal-100 border border-teal-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-teal-800">POST /api/chat</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-teal-200 text-teal-900 rounded font-bold">🤖 Uji AI Gemini</span>
+                </button>
+
+                <!-- 8. GET /chat (Halaman Antarmuka Penuh AI) -->
+                <a href="/chat" class="flex items-center justify-between p-2.5 bg-gradient-to-r from-teal-500 to-[#002f34] text-white rounded text-left transition group shadow-sm hover:opacity-95">
+                    <span class="text-xs font-mono font-bold text-white">GET /chat</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-white/20 text-white rounded font-bold">📱 Buka Mobile Web AI</span>
+                </a>
+
             </div>
 
             <!-- Panel Live Response JSON -->
@@ -441,7 +462,25 @@
                 alert('Gagal mengambil daftar produk: ' + err.message);
             }
         }
+        function runApiChatTest() {
+            const promptText = prompt("Ketik pertanyaan untuk Stalin AI Assistant:", "Apakah ada rekomendasi laptop gaming di toko ini?");
+            if (promptText && promptText.trim() !== '') {
+                runApiTest('POST', '/api/chat', { message: promptText.trim() });
+            }
+        }
     </script>
+
+    <!-- Floating AI Assistant Button (PRD: Mobile Web 24/7 Access) -->
+    <a href="/chat" class="fixed bottom-5 right-5 z-50 bg-[#002f34] hover:bg-teal-900 text-white p-3.5 sm:px-4 sm:py-3 rounded-full shadow-2xl flex items-center gap-2 border-2 border-teal-400 transform hover:scale-105 active:scale-95 transition-all group" title="Buka Stalin Store AI Assistant (24/7)">
+        <div class="relative">
+            <span class="text-xl">🤖</span>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping"></span>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full"></span>
+        </div>
+        <span class="hidden sm:inline-block text-xs font-black tracking-wide uppercase">
+            Tanya AI (24/7)
+        </span>
+    </a>
 
 </body>
 </html>

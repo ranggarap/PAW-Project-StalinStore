@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%= title %></title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        stalin: {
+                            50: '#f0fdfa',
+                            500: '#14b8a6',
+                            900: '#002f34'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        /* Animasi Bouncing Dots Loading */
+        .dot-flashing {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #14b8a6;
+            animation: dotFlashing 1s infinite alternate;
+        }
+        .dot-flashing:nth-child(2) { animation-delay: 0.2s; }
+        .dot-flashing:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dotFlashing {
+            0% { transform: scale(0.6); opacity: 0.4; }
+            100% { transform: scale(1.2); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-[#f0f2f5] dark:bg-gray-900 text-[#002f34] dark:text-gray-100 h-full flex flex-col transition-colors duration-200 antialiased select-none">
+
+    <!-- Top Navigation Header (Mobile-First) -->
+    <header class="bg-[#002f34] text-white px-3 sm:px-6 py-3 flex-shrink-0 shadow-md z-30">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
+            
+            <!-- Left: Back Button & Bot Identity -->
+            <div class="flex items-center space-x-3">
+                <a href="/" class="p-1.5 -ml-1 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition" title="Kembali ke Katalog">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </a>
+                
+                <div class="relative flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center text-white font-black text-xl shadow-inner">
+                        🤖
+                    </div>
+                    <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-[#002f34] rounded-full animate-pulse"></span>
+                </div>
+
+                <div>
+                    <div class="flex items-center space-x-1.5">
+                        <h1 class="text-sm sm:text-base font-bold tracking-tight text-white leading-none">
+                            Stalin AI Assistant
+                        </h1>
+                        <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-teal-400/20 text-teal-300 border border-teal-400/30">
+                            v1.0
+                        </span>
+                    </div>
+                    <p class="text-[10px] sm:text-xs text-teal-200/80 mt-0.5 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
+                        Online 24/7 &bull; Layanan Cepat &lt; 2 Detik
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right: Dark Mode Toggle & Reset Chat -->
+            <div class="flex items-center space-x-1.5 sm:space-x-2">
+                <!-- Dark Mode Toggle Button (F-04 PRD: Night Mode) -->
+                <button id="theme-toggle" onclick="toggleDarkMode()" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-teal-200 hover:text-white transition" title="Ganti Mode Gelap/Terang (Belanja Malam Hari)">
+                    <span id="theme-icon">🌙</span>
+                </button>
+
+                <!-- Clear Chat Button -->
+                <button onclick="clearChatHistory()" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-teal-200 hover:text-white transition text-xs font-medium" title="Hapus Riwayat Obrolan">
+                    🧹
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Sub-Header / PRD Authors Banner -->
+    <div class="bg-teal-900/60 dark:bg-gray-800 text-teal-100 text-[10px] sm:text-[11px] py-1 px-4 text-center border-b border-teal-800/40">
+        <span class="font-bold text-white">Stalin Store AI Assistant (Mobile Web)</span> &bull; 
+        Oleh: Rangga (20240140211), Rizal (20240140213), Andy (20240140209), Sheillo (20240140249)
+    </div>
+
+    <!-- Quick Replies Bar (US-04: Tombol menu cepat di HP tanpa perlu banyak ketik) -->
+    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 py-2 flex-shrink-0 overflow-x-auto scrollbar-none shadow-sm">
+        <div class="max-w-4xl mx-auto flex items-center space-x-2 text-xs whitespace-nowrap">
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex-shrink-0">
+                Pilihan Cepat:
+            </span>
+            <button onclick="sendQuickReply('Rekomendasikan laptop gaming yang tersedia di toko')" class="px-2.5 py-1 bg-teal-50 dark:bg-gray-700 hover:bg-teal-100 dark:hover:bg-gray-600 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-gray-600 rounded-full font-medium transition text-[11px] flex items-center gap-1">
+                💻 Cari Laptop
+            </button>
+            <button onclick="sendQuickReply('Apakah PC Gaming Core i5 dan Mouse Logitech masih ada stoknya?')" class="px-2.5 py-1 bg-amber-50 dark:bg-gray-700 hover:bg-amber-100 dark:hover:bg-gray-600 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-gray-600 rounded-full font-medium transition text-[11px] flex items-center gap-1">
+                📦 Cek Stok Barang
+            </button>
+            <button onclick="sendQuickReply('Saya mau panduan merakit PC dengan budget 10 Juta yang kompatibel')" class="px-2.5 py-1 bg-indigo-50 dark:bg-gray-700 hover:bg-indigo-100 dark:hover:bg-gray-600 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-gray-600 rounded-full font-medium transition text-[11px] flex items-center gap-1">
+                🖥️ Rakit PC 10 Jt
+            </button>
+            <button onclick="sendQuickReply('Jika barang incaran saya habis, apakah ada rekomendasi part pengganti?')" class="px-2.5 py-1 bg-blue-50 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-gray-600 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-gray-600 rounded-full font-medium transition text-[11px] flex items-center gap-1">
+                🔄 Part Pengganti
+            </button>
+            <a href="https://wa.me/<%= adminWhatsApp.replace(/[^0-9]/g, '') %>?text=Halo%20Admin%20Stalin%20Store%2C%20saya%20butuh%20bantuan" target="_blank" class="px-2.5 py-1 bg-emerald-50 dark:bg-gray-700 hover:bg-emerald-100 dark:hover:bg-gray-600 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-gray-600 rounded-full font-medium transition text-[11px] flex items-center gap-1">
+                💬 Admin WA
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Chat Messages Container -->
+    <main id="chat-messages" class="flex-grow overflow-y-auto px-3 sm:px-6 py-4 space-y-4 max-w-4xl mx-auto w-full">
+        
+        <!-- Welcome Message from AI (US-01: Auto Greeting) -->
+        <div class="flex items-start space-x-2.5 max-w-[90%] sm:max-w-[80%]">
+            <div class="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center flex-shrink-0 shadow text-sm">
+                🤖
+            </div>
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-tl-none p-3.5 shadow-sm text-xs sm:text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
+                <p class="font-bold text-[#002f34] dark:text-teal-400 mb-1 flex items-center justify-between">
+                    <span>Stalin Store AI Assistant</span>
+                    <span class="text-[10px] text-gray-400 font-normal">24/7 Aktif</span>
+                </p>
+                <p>
+                    Halo! Selamat datang di **Stalin Store** 🤖. Saya adalah asisten virtual resmi yang siap membantu Anda kapan pun, termasuk larut malam di luar jam kerja toko.
+                </p>
+                <div class="mt-2.5 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                    <p class="font-semibold text-teal-700 dark:text-teal-300">💡 Yang bisa saya bantu:</p>
+                    <p>&bull; <strong>Cek Ketersediaan Stok</strong> laptop, VGA, RAM, dan monitor</p>
+                    <p>&bull; <strong>Rekomendasi Part Pengganti</strong> jika barang incaran Anda habis (US-02)</p>
+                    <p>&bull; <strong>Panduan Rakit PC</strong> sesuai budget (5 Jt, 10 Jt, 15 Jt) (US-03)</p>
+                    <p>&bull; Tanya spesifikasi hardware &amp; info lokasi COD di Yogyakarta</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Typing / Processing Indicator (Hidden by default) -->
+    <div id="typing-indicator" class="hidden px-4 sm:px-6 py-2 max-w-4xl mx-auto w-full flex-shrink-0">
+        <div class="flex items-center space-x-2 text-xs text-teal-700 dark:text-teal-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-full px-3.5 py-1.5 w-fit shadow-sm">
+            <span>🤖 AI sedang menganalisis katalog</span>
+            <span class="flex items-center space-x-1 ml-1">
+                <span class="dot-flashing"></span>
+                <span class="dot-flashing"></span>
+                <span class="dot-flashing"></span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Bottom Chat Input Bar (Mobile Web) -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-3 sm:px-6 py-2.5 sm:py-3 flex-shrink-0 shadow-lg">
+        <div class="max-w-4xl mx-auto">
+            
+            <form id="chat-form" onsubmit="handleChatSubmit(event)" class="flex items-center gap-2">
+                <!-- Text Input -->
+                <div class="relative flex-grow">
+                    <input 
+                        type="text" 
+                        id="user-input" 
+                        maxlength="500" 
+                        placeholder="Ketik pertanyaan seputar produk atau rakit PC..." 
+                        class="w-full pl-3.5 pr-12 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-700 text-xs sm:text-sm text-gray-800 dark:text-white rounded-full border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500 transition placeholder-gray-400"
+                        autocomplete="off"
+                    >
+                    <span id="char-count" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none">
+                        0/500
+                    </span>
+                </div>
+
+                <!-- Send Button -->
+                <button 
+                    type="submit" 
+                    id="send-button"
+                    class="bg-[#002f34] dark:bg-teal-600 hover:bg-teal-800 dark:hover:bg-teal-500 text-white rounded-full p-2.5 sm:p-3 flex items-center justify-center transition shadow transform active:scale-95 flex-shrink-0"
+                    title="Kirim Pertanyaan"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 sm:h-5 w-4 sm:w-5 rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                </button>
+            </form>
+
+            <p class="text-[10px] text-gray-400 dark:text-gray-500 text-center mt-1.5 truncate">
+                Stalin Store AI dilindungi Guardrail Konteks. Seluruh data berpatokan langsung pada inventaris toko.
+            </p>
+
+        </div>
+    </footer>
+
+    <!-- Chat JavaScript Engine -->
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const charCount = document.getElementById('char-count');
+
+        // Character counter
+        userInput.addEventListener('input', () => {
+            charCount.textContent = `${userInput.value.length}/500`;
+        });
+
+        // Dark Mode Controller (F-04)
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                icon.textContent = '🌙';
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                icon.textContent = '☀️';
+            }
+        }
+
+        // Init theme
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            const icon = document.getElementById('theme-icon');
+            if (icon) icon.textContent = '☀️';
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function formatRupiahJs(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
+
+        function appendUserMessage(text) {
+            const div = document.createElement('div');
+            div.className = 'flex items-start justify-end space-x-2 max-w-[90%] sm:max-w-[80%] ml-auto';
+            div.innerHTML = `
+                <div class="bg-gradient-to-r from-teal-600 to-[#002f34] text-white rounded-2xl rounded-tr-none p-3 shadow text-xs sm:text-sm leading-relaxed">
+                    ${escapeHtml(text)}
+                </div>
+            `;
+            chatMessages.appendChild(div);
+            scrollToBottom();
+        }
+
+        function appendBotMessage(reply, products = [], isBlocked = false) {
+            const div = document.createElement('div');
+            div.className = 'flex items-start space-x-2.5 max-w-[92%] sm:max-w-[85%]';
+            
+            // Format text (bold, list, bullet)
+            let formattedReply = escapeHtml(reply)
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '<br><br>')
+                .replace(/\n/g, '<br>');
+
+            let productCardsHtml = '';
+            if (products && products.length > 0) {
+                productCardsHtml = `
+                    <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 space-y-2">
+                        <p class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            🛒 Kartu Produk Terkait (Katalog Aktif):
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            ${products.map(p => `
+                                <div class="bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg p-2.5 flex items-center space-x-2.5 hover:border-teal-500 transition group">
+                                    <img src="${p.gambar || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f'}" alt="${escapeHtml(p.nama)}" class="w-14 h-14 rounded object-cover flex-shrink-0 bg-gray-200">
+                                    <div class="flex-grow min-w-0">
+                                        <div class="flex items-center space-x-1.5">
+                                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${p.stok ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300' : 'bg-rose-100 dark:bg-rose-900/40 text-rose-800 dark:text-rose-300'}">
+                                                ${p.stok ? 'Tersedia' : 'Habis'}
+                                            </span>
+                                            <span class="text-[10px] text-gray-400 truncate">&bull; ${p.kategori}</span>
+                                        </div>
+                                        <h4 class="text-xs font-bold text-gray-800 dark:text-gray-100 truncate mt-0.5 group-hover:text-teal-600 dark:group-hover:text-teal-400" title="${escapeHtml(p.nama)}">
+                                            ${escapeHtml(p.nama)}
+                                        </h4>
+                                        <p class="text-xs font-black text-[#002f34] dark:text-teal-300">
+                                            ${formatRupiahJs(p.harga)}
+                                        </p>
+                                        <div class="mt-1 flex items-center space-x-2">
+                                            <a href="/produk/${p.id}" class="text-[10px] font-bold text-teal-700 dark:text-teal-300 underline hover:text-teal-900">
+                                                Lihat Detail &rarr;
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-full ${isBlocked ? 'bg-rose-600' : 'bg-teal-600'} text-white flex items-center justify-center flex-shrink-0 shadow text-sm">
+                    ${isBlocked ? '🛡️' : '🤖'}
+                </div>
+                <div class="bg-white dark:bg-gray-800 border ${isBlocked ? 'border-rose-200 dark:border-rose-900' : 'border-gray-200 dark:border-gray-700'} rounded-2xl rounded-tl-none p-3.5 shadow-sm text-xs sm:text-sm text-gray-800 dark:text-gray-200 leading-relaxed w-full">
+                    <p class="font-bold text-[#002f34] dark:text-teal-400 mb-1 flex items-center justify-between text-xs">
+                        <span>Stalin AI Assistant</span>
+                        <span class="text-[10px] text-gray-400 font-normal">Baru saja</span>
+                    </p>
+                    <div>${formattedReply}</div>
+                    ${productCardsHtml}
+                </div>
+            `;
+            chatMessages.appendChild(div);
+            scrollToBottom();
+        }
+
+        function appendErrorFallback(errorMessage) {
+            const div = document.createElement('div');
+            div.className = 'flex items-start space-x-2.5 max-w-[90%] sm:max-w-[80%]';
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow text-sm">
+                    ⚠️
+                </div>
+                <div class="bg-amber-50 dark:bg-gray-800 border border-amber-200 dark:border-amber-700 rounded-2xl rounded-tl-none p-3.5 shadow-sm text-xs sm:text-sm text-amber-900 dark:text-amber-200 leading-relaxed">
+                    <p class="font-bold mb-1">Koneksi AI Mengalami Kendala</p>
+                    <p>${escapeHtml(errorMessage)}</p>
+                    <div class="mt-3 pt-2.5 border-t border-amber-200 dark:border-gray-700">
+                        <p class="text-[11px] text-gray-600 dark:text-gray-400 mb-1.5 font-medium">
+                            🚨 Butuh respon darurat langsung dari admin toko?
+                        </p>
+                        <a href="https://wa.me/<%= adminWhatsApp.replace(/[^0-9]/g, '') %>?text=Halo%20Admin%20Stalin%20Store%2C%20saya%20butuh%20bantuan%20katalog" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition shadow-sm">
+                            <span>💬</span> Hubungi WhatsApp Admin (<%= adminName %>)
+                        </a>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(div);
+            scrollToBottom();
+        }
+
+        async function handleChatSubmit(e) {
+            if (e) e.preventDefault();
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            appendUserMessage(message);
+            userInput.value = '';
+            charCount.textContent = '0/500';
+            userInput.disabled = true;
+            sendButton.disabled = true;
+            typingIndicator.classList.remove('hidden');
+            scrollToBottom();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+                typingIndicator.classList.add('hidden');
+
+                if (response.ok && data.success) {
+                    appendBotMessage(
+                        data.data.reply, 
+                        data.data.products || [], 
+                        Boolean(data.data.guardrailBlocked)
+                    );
+                } else {
+                    appendErrorFallback(data.error || 'Terjadi kesalahan sistem saat memproses pesan Anda.');
+                }
+            } catch (err) {
+                typingIndicator.classList.add('hidden');
+                appendErrorFallback('Gagal terhubung ke server backend. Mohon periksa koneksi internet Anda atau hubungi admin.');
+            } finally {
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                userInput.focus();
+                scrollToBottom();
+            }
+        }
+
+        function sendQuickReply(text) {
+            userInput.value = text;
+            handleChatSubmit();
+        }
+
+        function clearChatHistory() {
+            if (confirm('Bersihkan riwayat percakapan?')) {
+                const initialMsg = chatMessages.firstElementChild;
+                chatMessages.innerHTML = '';
+                if (initialMsg) chatMessages.appendChild(initialMsg);
+            }
+        }
+
+        function escapeHtml(string) {
+            const entityMap = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            };
+            return String(string).replace(/[&<>"']/g, s => entityMap[s]);
+        }
+    </script>
+
+</body>
+</html>

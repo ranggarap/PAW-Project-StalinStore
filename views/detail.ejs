@@ -17,8 +17,11 @@
                 <span class="text-3xl font-black tracking-tighter text-[#002f34]">OLX</span>
                 <span class="text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-teal-100 text-[#002f34]">Stalin</span>
             </a>
-            <div class="flex items-center space-x-4">
-                <a href="/" class="text-xs sm:text-sm font-medium text-gray-600 hover:text-[#002f34]">&larr; Kembali ke Katalog</a>
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <a href="/chat" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 text-xs font-bold transition shadow-sm" title="Tanya AI Assistant">
+                    <span>🤖</span> <span class="hidden sm:inline">Tanya AI</span>
+                </a>
+                <a href="/" class="text-xs sm:text-sm font-medium text-gray-600 hover:text-[#002f34]">&larr; Katalog</a>
                 <% if (user) { %>
                     <a href="/profile" class="text-xs font-bold text-[#002f34] bg-gray-100 px-3 py-1.5 rounded hover:bg-gray-200">
                         Profil (<%= user.nama.split(' ')[0] %>)
@@ -71,6 +74,22 @@
                         </div>
                     <% } %>
                 </div>
+
+                <!-- Banner Smart Substitution AI (US-02 PRD) -->
+                <% if (!produk.stok) { %>
+                    <div class="p-4 bg-gradient-to-r from-amber-50 to-teal-50 border border-amber-300 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">🤖</span>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-900">Barang ini sedang habis?</h4>
+                                <p class="text-[11px] text-gray-600">Tanyakan ke Stalin AI Assistant untuk rekomendasi part pengganti dengan spesifikasi dan kelas harga yang sebanding.</p>
+                            </div>
+                        </div>
+                        <a href="/chat" class="px-3 py-1.5 bg-[#002f34] hover:bg-teal-900 text-white font-bold rounded-lg text-xs transition flex-shrink-0 flex items-center gap-1 shadow">
+                            <span>🔄</span> Rekomendasi Pengganti
+                        </a>
+                    </div>
+                <% } %>
 
                 <!-- Deskripsi Produk -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
@@ -182,6 +201,18 @@
     <footer class="bg-[#002f34] text-white py-4 px-6 text-center text-xs">
         &copy; <%= new Date().getFullYear() %> Stalin Store &bull; Praktikum Pemrograman Aplikasi Web (PPAW - Integrasi Database & CRUD).
     </footer>
+
+    <!-- Floating AI Assistant Button (PRD: Mobile Web 24/7 Access) -->
+    <a href="/chat" class="fixed bottom-5 right-5 z-50 bg-[#002f34] hover:bg-teal-900 text-white p-3.5 sm:px-4 sm:py-3 rounded-full shadow-2xl flex items-center gap-2 border-2 border-teal-400 transform hover:scale-105 active:scale-95 transition-all group" title="Buka Stalin Store AI Assistant (24/7)">
+        <div class="relative">
+            <span class="text-xl">🤖</span>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping"></span>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full"></span>
+        </div>
+        <span class="hidden sm:inline-block text-xs font-black tracking-wide uppercase">
+            Tanya AI (24/7)
+        </span>
+    </a>
 
 </body>
 </html>
