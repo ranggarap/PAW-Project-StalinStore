@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#f7f8f9] text-[#002f34] min-h-screen flex flex-col justify-between antialiased">
+
+    <!-- Top Info Bar (Database Status & REST API Info) -->
+    <div class="bg-[#002f34] text-white text-xs py-1.5 px-4 border-b border-teal-900">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center space-x-2">
+                <span class="inline-block w-2.5 h-2.5 rounded-full <%= dbConnected ? 'bg-emerald-400' : 'bg-amber-400' %> animate-pulse"></span>
+                <span class="font-medium tracking-wide">
+                    PPAW: Integrasi Database <%= dbConnected ? 'PostgreSQL (Aktif)' : 'Data Store (Aktif)' %> &amp; CRUD Berkelanjutan
+                </span>
+            </div>
+            <div class="flex items-center space-x-4 text-[11px]">
+                <a href="/chat" class="text-teal-300 hover:text-white font-bold flex items-center gap-1 transition">
+                    <span>🤖</span> AI Assistant (24/7)
+                </a>
+                <span>|</span>
+                <a href="/api/status" target="_blank" class="hover:text-teal-300 font-mono underline transition">GET /api/status</a>
+                <span>|</span>
+                <a href="/api/produk" target="_blank" class="hover:text-teal-300 font-mono underline transition">GET /api/produk</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Header / Top Navbar (OLX Style) -->
+    <header class="bg-white sticky top-0 z-40 border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex items-center justify-between gap-3 sm:gap-6">
+            
+            <!-- Logo OLX Style -->
+            <a href="/" class="flex-shrink-0 flex items-center gap-1.5 group">
+                <span class="text-3xl sm:text-4xl font-black tracking-tighter text-[#002f34] group-hover:text-teal-700 transition">
+                    OLX
+                </span>
+                <span class="text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-teal-100 text-[#002f34]">
+                    Stalin
+                </span>
+            </a>
+
+            <!-- Form Pencarian & Lokasi Terintegrasi Database -->
+            <form action="/" method="GET" class="flex-grow flex items-center gap-2 sm:gap-3">
+                <!-- Dropdown Lokasi Interaktif -->
+                <div class="hidden lg:flex items-center border-2 border-[#002f34] rounded h-11 px-2.5 bg-white w-56 hover:border-teal-600 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#002f34] mr-1.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <select name="lokasi" onchange="this.form.submit()" class="text-xs font-medium text-gray-800 bg-transparent w-full focus:outline-none cursor-pointer">
+                        <% locations.forEach(loc => { %>
+                            <option value="<%= loc %>" <%= selectedLokasi === loc ? 'selected' : '' %>><%= loc %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <!-- Input Pencarian Panjang -->
+                <div class="flex-grow flex items-center border-2 border-[#002f34] rounded h-11 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-[#002f34]">
+                    <input 
+                        type="text" 
+                        name="q" 
+                        value="<%= q || '' %>" 
+                        placeholder="Cari Laptop Gaming, VGA Card, RAM, Processor di Database..." 
+                        class="w-full px-3 text-xs sm:text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
+                    >
+                    <% if (selectedKategori && selectedKategori !== 'Semua Kategori') { %>
+                        <input type="hidden" name="kategori" value="<%= selectedKategori %>">
+                    <% } %>
+                    <button type="submit" class="bg-[#002f34] hover:bg-teal-900 text-white h-full px-4 sm:px-5 flex items-center justify-center transition" title="Cari Hardware">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 sm:h-5 w-4 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Navigasi Kanan (Akun, AI Assistant, & Tombol Jual) -->
+            <div class="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+                <!-- Tombol Shortcut AI Assistant -->
+                <a href="/chat" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 text-xs font-bold transition shadow-sm" title="Tanya Stalin Store AI Assistant (24/7)">
+                    <span>🤖</span> <span class="hidden sm:inline">Tanya AI</span>
+                </a>
+
+                <% if (user) { %>
+                    <!-- User Terautentikasi (Profil & Logout) -->
+                    <div class="flex items-center space-x-3">
+                        <a href="/profile" class="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 transition group" title="Buka Profil Saya">
+                            <img src="<%= user.avatar %>" alt="<%= user.nama %>" class="w-8 h-8 rounded-full border border-gray-300 object-cover">
+                            <span class="hidden md:inline-block text-xs font-bold text-[#002f34] group-hover:text-teal-700">
+                                <%= user.nama.split(' ')[0] %>
+                            </span>
+                        </a>
+                        <a href="/logout" class="text-xs font-bold text-rose-600 hover:text-rose-800 hover:underline">
+                            Keluar
+                        </a>
+                    </div>
+                <% } else { %>
+                    <!-- User Belum Login -->
+                    <a href="/login" class="text-xs sm:text-sm font-bold text-[#002f34] hover:underline underline-offset-4">
+                        Login / Daftar
+                    </a>
+                <% } %>
+
+                <!-- Tombol Pill "+ JUAL" (CRUD CREATE) -->
+                <a href="/jual" class="relative inline-flex items-center justify-center p-0.5 overflow-hidden rounded-full group bg-gradient-to-r from-teal-400 via-amber-300 to-blue-500 hover:from-teal-500 hover:to-blue-600 shadow-md transform active:scale-95 transition" title="Pasang Iklan Baru (CRUD Create)">
+                    <span class="px-4 sm:px-6 py-1.5 transition-all ease-in duration-75 bg-white rounded-full text-[#002f34] flex items-center gap-1.5 font-black uppercase tracking-wider text-xs sm:text-sm">
+                        <span class="text-base sm:text-lg leading-none font-black text-teal-600">+</span> JUAL
+                    </span>
+                </a>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Sub-Navbar / Baris Kategori (OLX Style) -->
+    <nav class="bg-white border-b border-gray-200 overflow-x-auto scrollbar-none">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center space-x-6 text-xs uppercase font-bold text-[#002f34] whitespace-nowrap">
+            <a href="/" class="flex items-center gap-1 font-black <%= selectedKategori === 'Semua Kategori' ? 'text-teal-700 border-b-2 border-teal-700 pb-0.5' : 'text-gray-600 hover:text-[#002f34]' %> transition">
+                SEMUA KATEGORI
+            </a>
+            <% categories.filter(c => c !== 'Semua Kategori').forEach(kat => { %>
+                <a href="/?kategori=<%= encodeURIComponent(kat) %>&lokasi=<%= encodeURIComponent(selectedLokasi || '') %>" 
+                   class="<%= selectedKategori === kat ? 'text-teal-700 border-b-2 border-teal-700 pb-0.5' : 'text-gray-600 hover:text-[#002f34]' %> transition">
+                    <%= kat %>
+                </a>
+            <% }) %>
+        </div>
+    </nav>
+
+    <!-- Flash Notification (Jika Ada) -->
+    <% if (flash) { %>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 mt-4">
+            <div class="p-3 rounded-md text-xs font-medium <%= flash.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200' %> flex items-center justify-between">
+                <span><%= flash.message %></span>
+                <span class="cursor-pointer font-bold ml-2" onclick="this.parentElement.remove()">✕</span>
+            </div>
+        </div>
+    <% } %>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-8 w-full flex-grow">
+        
+        <!-- Breadcrumb / Header Pencarian & Hasil Filter -->
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-[#002f34] tracking-tight">
+                    <% if (q) { %>
+                        Hasil Pencarian: "<%= q %>"
+                    <% } else if (selectedKategori && selectedKategori !== 'Semua Kategori') { %>
+                        Kategori <%= selectedKategori %>
+                    <% } else { %>
+                        Rekomendasi Hardware dari Database
+                    <% } %>
+                </h1>
+                <p class="text-xs text-gray-500 mt-0.5">
+                    Hardware komputer pilihan &bull; Sumber Data: <span class="font-bold text-teal-800"><%= dbConnected ? 'PostgreSQL Database' : 'Database Data Store' %></span> &bull; Lokasi: <%= selectedLokasi || 'Semua Lokasi' %>
+                </p>
+            </div>
+            
+            <div class="flex items-center space-x-2 text-xs">
+                <% if (q || (selectedKategori && selectedKategori !== 'Semua Kategori') || (selectedLokasi && selectedLokasi !== 'Semua Lokasi')) { %>
+                    <a href="/" class="px-2.5 py-1 rounded bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold border border-rose-200 transition">
+                        ✕ Reset Filter
+                    </a>
+                <% } %>
+                <span class="text-gray-500 font-medium">
+                    Menampilkan <span class="text-[#002f34] font-bold"><%= produk.length %></span> iklan di database
+                </span>
+            </div>
+        </div>
+
+        <!-- Product Grid (2 Kolom di HP, 4 Kolom di Desktop) -->
+        <% if (produk.length === 0) { %>
+            <div class="bg-white border border-gray-200 rounded-lg p-12 text-center my-6">
+                <span class="text-5xl block mb-3">🔍</span>
+                <h3 class="text-base font-bold text-gray-800">Tidak ada produk hardware yang cocok di database</h3>
+                <p class="text-xs text-gray-500 mt-1 max-w-md mx-auto">
+                    Coba gunakan kata kunci lain atau pilih kategori dan lokasi yang berbeda untuk menemukan produk.
+                </p>
+                <a href="/" class="inline-block mt-4 text-xs font-bold text-teal-700 bg-teal-50 border border-teal-200 px-4 py-2 rounded hover:bg-teal-100 transition">
+                    Kembali ke Semua Iklan
+                </a>
+            </div>
+        <% } else { %>
+            <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+                <% produk.forEach(item => { %>
+                    <div class="bg-white border border-gray-200 rounded-md overflow-hidden hover:shadow-lg transition-all duration-200 flex flex-col justify-between relative group">
+                        
+                        <!-- Area Gambar & Link Detail -->
+                        <div class="relative w-full h-40 sm:h-48 bg-gray-100 overflow-hidden">
+                            <a href="/produk/<%= item.id %>" class="block w-full h-full">
+                                <img 
+                                    src="<%= item.gambar %>" 
+                                    alt="<%= item.nama %>" 
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    loading="lazy"
+                                >
+                            </a>
+
+                            <!-- Shortcut Tombol Edit di Card (CRUD Update) -->
+                            <a href="/produk/<%= item.id %>/edit" class="absolute top-2 left-2 px-2 py-1 bg-white/90 hover:bg-white text-[10px] font-bold text-amber-700 rounded shadow backdrop-blur-sm opacity-90 hover:opacity-100 transition z-10" title="Edit Produk">
+                                ✏️ Edit
+                            </a>
+
+                            <!-- Overlay "TERJUAL" jika Stok False -->
+                            <% if (!item.stok) { %>
+                                <div class="absolute inset-0 bg-black/60 z-20 flex items-center justify-center backdrop-blur-[1px] pointer-events-none">
+                                    <span class="bg-red-600 text-white font-black text-xs sm:text-sm px-3.5 py-1 rounded shadow-lg border border-white tracking-widest uppercase transform -rotate-6">
+                                        TERJUAL
+                                    </span>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <!-- Area Informasi Produk -->
+                        <div class="p-3 sm:p-3.5 flex flex-col justify-between flex-grow <%= !item.stok ? 'opacity-65' : '' %>">
+                            <div>
+                                <!-- Harga Tebal & Besar -->
+                                <p class="text-base sm:text-lg font-black text-[#002f34] leading-tight">
+                                    <%= formatRupiah(item.harga) %>
+                                </p>
+
+                                <!-- Badge Kondisi (Baru / Bekas) & Kategori -->
+                                <div class="flex items-center gap-1.5 mt-1.5">
+                                    <span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded <%= item.kondisi === 'Baru' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700' %>">
+                                        <%= item.kondisi %>
+                                    </span>
+                                    <span class="text-[11px] text-gray-500 truncate">
+                                        &bull; <%= item.kategori %>
+                                    </span>
+                                </div>
+
+                                <!-- Judul Produk (Link ke detail) -->
+                                <a href="/produk/<%= item.id %>" class="block">
+                                    <h3 class="text-xs sm:text-sm text-gray-700 font-normal line-clamp-2 mt-1.5 leading-snug group-hover:text-teal-700 transition" title="<%= item.nama %>">
+                                        <%= item.nama %>
+                                    </h3>
+                                </a>
+                            </div>
+
+                            <!-- Footer Card: Lokasi di Kiri, Waktu Post di Kanan -->
+                            <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-[10px] sm:text-[11px] text-gray-400 uppercase tracking-tight">
+                                <span class="truncate max-w-[55%]" title="<%= item.lokasi %>">
+                                    <%= item.lokasi %>
+                                </span>
+                                <span class="flex-shrink-0">
+                                    <%= item.waktu_post %>
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+
+        <!-- Testing Console Card Interaktif untuk Seluruh Endpoint CRUD -->
+        <div class="mt-14 bg-white border border-gray-200 rounded-lg p-5 sm:p-6 shadow-sm">
+            <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🛠️</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-[#002f34] uppercase tracking-wide">
+                            Konsol Pengujian REST API CRUD &amp; Middleware Logger
+                        </h3>
+                        <p class="text-xs text-gray-500">
+                            Seluruh endpoint di bawah ini terhubung ke database. Anda dapat menguji langsung melalui tombol di bawah atau menggunakan Postman / Thunder Client.
+                        </p>
+                    </div>
+                </div>
+                <span class="px-2.5 py-1 text-xs font-mono font-bold rounded <%= dbConnected ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300' %>">
+                    <%= dbConnected ? 'PostgreSQL Connected' : 'Database Ready' %>
+                </span>
+            </div>
+
+            <!-- Daftar Tombol Uji Langsung Endpoint -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 my-4">
+                
+                <!-- 1. GET /api/status -->
+                <button onclick="runApiTest('GET', '/api/status')" class="flex items-center justify-between p-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-emerald-700">GET /api/status</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">Cek Status</span>
+                </button>
+
+                <!-- 2. GET /api/produk -->
+                <button onclick="runApiTest('GET', '/api/produk')" class="flex items-center justify-between p-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-blue-700">GET /api/produk</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded font-bold">Read All</span>
+                </button>
+
+                <!-- 3. GET /api/produk/1 -->
+                <button onclick="runApiTest('GET', '/api/produk/1')" class="flex items-center justify-between p-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-indigo-700">GET /api/produk/1</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-indigo-100 text-indigo-800 rounded font-bold">Read Detail</span>
+                </button>
+
+                <!-- 4. POST /api/produk -->
+                <button onclick="runApiPostTest()" class="flex items-center justify-between p-2.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-emerald-800">POST /api/produk</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded font-bold">+ Create Data</span>
+                </button>
+
+                <!-- 5. PUT /api/produk/1 -->
+                <button onclick="runApiPutTest()" class="flex items-center justify-between p-2.5 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-amber-800">PUT /api/produk/1</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-amber-200 text-amber-900 rounded font-bold">✏️ Update Data</span>
+                </button>
+
+                <!-- 6. DELETE /api/produk/:id -->
+                <button onclick="runApiDeleteTest()" class="flex items-center justify-between p-2.5 bg-rose-50 hover:bg-rose-100 border border-rose-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-rose-800">DELETE /api/produk/:id</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-rose-200 text-rose-900 rounded font-bold">🗑️ Delete Data</span>
+                </button>
+
+                <!-- 7. POST /api/chat (Google Gemini AI Assistant) -->
+                <button onclick="runApiChatTest()" class="flex items-center justify-between p-2.5 bg-teal-50 hover:bg-teal-100 border border-teal-300 rounded text-left transition group">
+                    <span class="text-xs font-mono font-bold text-teal-800">POST /api/chat</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-teal-200 text-teal-900 rounded font-bold">🤖 Uji AI Gemini</span>
+                </button>
+
+                <!-- 8. GET /chat (Halaman Antarmuka Penuh AI) -->
+                <a href="/chat" class="flex items-center justify-between p-2.5 bg-gradient-to-r from-teal-500 to-[#002f34] text-white rounded text-left transition group shadow-sm hover:opacity-95">
+                    <span class="text-xs font-mono font-bold text-white">GET /chat</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-white/20 text-white rounded font-bold">📱 Buka Mobile Web AI</span>
+                </a>
+
+            </div>
+
+            <!-- Panel Live Response JSON -->
+            <div id="api-response-panel" class="hidden mt-4 p-4 bg-gray-900 rounded-lg text-emerald-400 font-mono text-xs overflow-x-auto shadow-inner">
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-gray-800 text-gray-400">
+                    <span id="api-response-title" class="font-bold text-white">Live API Response</span>
+                    <button onclick="document.getElementById('api-response-panel').classList.add('hidden')" class="hover:text-white">✕ Tutup</button>
+                </div>
+                <pre id="api-response-body" class="whitespace-pre-wrap max-h-64 overflow-y-auto"></pre>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer Khas OLX Indonesia -->
+    <footer class="bg-[#ebedf0] border-t border-gray-300 mt-12 text-[#002f34]">
+        <div class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs">
+            <div>
+                <h4 class="font-bold uppercase tracking-wider mb-2.5 text-gray-800">Kategori Populer</h4>
+                <ul class="space-y-1.5 text-gray-600">
+                    <li><a href="/?kategori=Laptop" class="hover:underline">Laptop Gaming</a></li>
+                    <li><a href="/?kategori=Komponen PC" class="hover:underline">VGA Card &amp; GPU</a></li>
+                    <li><a href="/?kategori=Komputer" class="hover:underline">PC Gaming Fullset</a></li>
+                    <li><a href="/?kategori=Monitor" class="hover:underline">Monitor Curved</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold uppercase tracking-wider mb-2.5 text-gray-800">Lokasi Penjualan</h4>
+                <ul class="space-y-1.5 text-gray-600">
+                    <li><a href="/?lokasi=Sleman" class="hover:underline">Sleman, D.I. Yogyakarta</a></li>
+                    <li><a href="/?lokasi=Kota Yogyakarta" class="hover:underline">Kota Yogyakarta</a></li>
+                    <li><a href="/?lokasi=Depok" class="hover:underline">Depok, Sleman</a></li>
+                    <li><a href="/?lokasi=Bantul" class="hover:underline">Bantul</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold uppercase tracking-wider mb-2.5 text-gray-800">Tentang Stalin Store</h4>
+                <p class="text-gray-500 leading-relaxed">
+                    Marketplace jual beli hardware dan komputer terpercaya. Menggunakan arsitektur Express MVC, EJS, PostgreSQL Database, serta REST API CRUD.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold uppercase tracking-wider mb-2.5 text-gray-800">Teknologi Proyek</h4>
+                <div class="space-y-1 text-gray-500 font-mono text-[11px]">
+                    <p>&bull; Node.js &amp; Express.js</p>
+                    <p>&bull; PostgreSQL Database (<code class="text-teal-700">pg</code>)</p>
+                    <p>&bull; View Engine: EJS</p>
+                    <p>&bull; Tailwind CSS CDN</p>
+                    <p>&bull; Middleware Logger</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-[#002f34] text-white py-4 px-6 text-center text-xs">
+            &copy; <%= new Date().getFullYear() %> Stalin Store &bull; Praktikum Pemrograman Aplikasi Web (PPAW - Integrasi Database & CRUD).
+        </div>
+    </footer>
+
+    <!-- Script Pengujian API Interaktif di Halaman Browser -->
+    <script>
+        async function runApiTest(method, url, body = null) {
+            const panel = document.getElementById('api-response-panel');
+            const titleEl = document.getElementById('api-response-title');
+            const bodyEl = document.getElementById('api-response-body');
+
+            panel.classList.remove('hidden');
+            titleEl.textContent = `Mengirim: ${method} ${url}...`;
+            bodyEl.textContent = 'Memproses request ke backend...';
+
+            try {
+                const options = {
+                    method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+                const res = await fetch(url, options);
+                const data = await res.json();
+                titleEl.textContent = `${method} ${url} -> Status ${res.status} ${res.statusText}`;
+                bodyEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                titleEl.textContent = `Error ${method} ${url}`;
+                bodyEl.textContent = err.message;
+            }
+        }
+
+        function runApiPostTest() {
+            const dummyPost = {
+                nama: "SSD Samsung 990 PRO 1TB PCIe 4.0 NVMe (Uji API)",
+                kategori: "Komponen PC",
+                harga: 1850000,
+                kondisi: "Baru",
+                lokasi: "Sleman, D.I. Yogyakarta",
+                gambar: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=600&q=80",
+                deskripsi: "Data ini ditambahkan secara otomatis melalui pengujian endpoint POST /api/produk ke database.",
+                stok: true
+            };
+            runApiTest('POST', '/api/produk', dummyPost);
+        }
+
+        function runApiPutTest() {
+            const dummyPut = {
+                nama: "Laptop ASUS ROG Strix SCAR 15 (Updated via PUT)",
+                harga: 20999000,
+                kondisi: "Bekas",
+                deskripsi: "Harga dan deskripsi berhasil diperbarui melalui endpoint PUT /api/produk/1 pada database."
+            };
+            runApiTest('PUT', '/api/produk/1', dummyPut);
+        }
+
+        async function runApiDeleteTest() {
+            // Ambil ID produk terakhir terlebih dahulu
+            try {
+                const res = await fetch('/api/produk');
+                const json = await res.json();
+                if (json.data && json.data.length > 0) {
+                    const targetId = json.data[0].id;
+                    if (confirm(`Uji hapus produk ID #${targetId} ("${json.data[0].nama}") via DELETE /api/produk/${targetId}?`)) {
+                        runApiTest('DELETE', `/api/produk/${targetId}`);
+                    }
+                } else {
+                    alert('Tidak ada produk untuk dihapus.');
+                }
+            } catch (err) {
+                alert('Gagal mengambil daftar produk: ' + err.message);
+            }
+        }
+        function runApiChatTest() {
+            const promptText = prompt("Ketik pertanyaan untuk Stalin AI Assistant:", "Apakah ada rekomendasi laptop gaming di toko ini?");
+            if (promptText && promptText.trim() !== '') {
+                runApiTest('POST', '/api/chat', { message: promptText.trim() });
+            }
+        }
+    </script>
+
+    <!-- Floating AI Assistant Button (PRD: Mobile Web 24/7 Access) -->
+    <a href="/chat" class="fixed bottom-5 right-5 z-50 bg-[#002f34] hover:bg-teal-900 text-white p-3.5 sm:px-4 sm:py-3 rounded-full shadow-2xl flex items-center gap-2 border-2 border-teal-400 transform hover:scale-105 active:scale-95 transition-all group" title="Buka Stalin Store AI Assistant (24/7)">
+        <div class="relative">
+            <span class="text-xl">🤖</span>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping"></span>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full"></span>
+        </div>
+        <span class="hidden sm:inline-block text-xs font-black tracking-wide uppercase">
+            Tanya AI (24/7)
+        </span>
+    </a>
+
+</body>
+</html>
