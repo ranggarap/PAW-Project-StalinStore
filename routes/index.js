@@ -3,6 +3,7 @@ const router = express.Router();
 const mainController = require('../controllers/mainController');
 const authController = require('../controllers/authController');
 const { requireAuth } = require('../middlewares/auth');
+const chatRoutes = require('./chat.routes');
 
 // ==========================================
 // 1. ROUTE WEB UTAMA & KATALOG
@@ -50,5 +51,10 @@ router.get('/api/produk/:id', mainController.getDetailProdukAPI);
 router.post('/api/produk', mainController.createProdukAPI);
 router.put('/api/produk/:id', mainController.updateProdukAPI);
 router.delete('/api/produk/:id', mainController.deleteProdukAPI);
+
+// ==========================================
+// 5. ROUTE AI ASSISTANT GOOGLE GEMINI (WEEK 10 / PRD)
+// ==========================================
+router.use('/', chatRoutes);
 
 module.exports = router;
